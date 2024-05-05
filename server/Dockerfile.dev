@@ -1,0 +1,10 @@
+FROM node:lts-iron
+
+COPY . /server
+
+WORKDIR /server
+
+RUN yarn
+
+ENTRYPOINT [ "yarn", "start:dev" ]
+

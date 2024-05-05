@@ -1,0 +1,37 @@
+version: "3"
+
+services:
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile.dev
+    ports:
+      - 3000:3000
+    volumes: 
+      - ./client:/client
+    depends_on:
+      - server
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile.dev
+    ports:
+      - 8080:8080
+    volumes: 
+      - ./server:/server
+    depends_on:
+      - redis
+      - elasticsearch
+  redis:
+    image: redis:7.2.4
+    restart: always
+    ports:
+      - 6379:6379
+    environment:
+      - REDIS_PASSWORD=my-password
+      - REDIS_PORT=6379
+  elasticsearch:
+    image: elasticsearch:8.13.0
+    ports:
+      - 9200:9200
+    

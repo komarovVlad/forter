@@ -1,0 +1,10 @@
+FROM node:lts-iron
+
+COPY . /client
+
+WORKDIR /client
+
+RUN yarn
+
+ENTRYPOINT [ "yarn", "start" ]
+
