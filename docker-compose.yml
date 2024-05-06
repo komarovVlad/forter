@@ -22,13 +22,18 @@ services:
     depends_on:
       - redis
       - elasticsearch
+    environment:
+      - PORT=8080
+      - REDIS_HOST=localhost
+      - REDIS_PORT=6379
+      - ELASTICSEARCH_HOST=localhost
+      - ELASTICSEARCH_PORT=9200
   redis:
     image: redis:7.2.4
     restart: always
     ports:
       - 6379:6379
     environment:
-      - REDIS_PASSWORD=my-password
       - REDIS_PORT=6379
   elasticsearch:
     image: elasticsearch:8.13.0
