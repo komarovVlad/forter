@@ -24,9 +24,9 @@ services:
       - elasticsearch
     environment:
       - PORT=8080
-      - REDIS_HOST=localhost
+      - REDIS_HOST=redis
       - REDIS_PORT=6379
-      - ELASTICSEARCH_HOST=localhost
+      - ELASTICSEARCH_HOST=elasticsearch
       - ELASTICSEARCH_PORT=9200
   redis:
     image: redis:7.2.4
@@ -39,4 +39,7 @@ services:
     image: elasticsearch:8.13.0
     ports:
       - 9200:9200
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
     

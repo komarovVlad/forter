@@ -1,24 +1,76 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import { Client } from '@elastic/elasticsearch';
 import { ConfigurationService } from 'modules/configuration/configuration.service';
-import { QUESTIONS_ES_INDEX } from './elasticsearch.constants';
+import { ANSWER_BOT_NAME, QUESTIONS_ES_INDEX } from './elasticsearch.constants';
 import {
   ElasticsearchQuestion,
   ElasticsearchReply,
 } from './elasticsearch.types';
-import flatten from 'lodash/flatten';
+import { flatten } from 'lodash';
+import { setTimeout } from 'timers/promises';
 
 @Injectable()
-export class ElasticsearchService {
+export class ElasticsearchService implements OnApplicationBootstrap {
   private elasticsearchClient: Client;
 
   constructor(private configurationService: ConfigurationService) {
     const { elasticsearch } = this.configurationService.getConfig();
     const { host, port } = elasticsearch;
-
     this.elasticsearchClient = new Client({
       node: `http://${host}:${port}`,
     });
+  }
+
+  async onApplicationBootstrap() {
+    await this.initialize();
+  }
+
+  private async initialize() {
+    try {
+      await this.createIndex();
+    } catch (err) {
+      await setTimeout(2000);
+      return this.initialize();
+    }
+  }
+
+  private async createIndex() {
+    const questionIndexExists = await this.elasticsearchClient.indices.exists({
+      index: QUESTIONS_ES_INDEX,
+    });
+
+    if (!questionIndexExists) {
+      await this.elasticsearchClient.indices.create({
+        index: QUESTIONS_ES_INDEX,
+        mappings: {
+          properties: {
+            id: {
+              type: 'text',
+            },
+            author: {
+              type: 'text',
+            },
+            content: {
+              type: 'text',
+            },
+            replies: {
+              type: 'nested',
+              properties: {
+                id: {
+                  type: 'text',
+                },
+                author: {
+                  type: 'text',
+                },
+                content: {
+                  type: 'text',
+                },
+              },
+            },
+          },
+        },
+      });
+    }
   }
 
   async createQuestion({
@@ -34,7 +86,7 @@ export class ElasticsearchService {
       author,
       replies: replies.map((reply) => ({
         ...reply,
-        author: 'AnswerBot',
+        author: ANSWER_BOT_NAME,
       })),
     };
 
@@ -54,7 +106,7 @@ export class ElasticsearchService {
     questionId: string,
     message: ElasticsearchReply,
   ): Promise<ElasticsearchQuestion> {
-    const updateResult = await this.elasticsearchClient.update<
+    await this.elasticsearchClient.update<
       ElasticsearchQuestion,
       ElasticsearchReply,
       ElasticsearchQuestion
@@ -62,15 +114,21 @@ export class ElasticsearchService {
       index: QUESTIONS_ES_INDEX,
       id: questionId,
       script: {
-        source: 'ctx._source.replies.addAll(params.replies)',
-        lang: 'painless',
+        source: 'ctx._source.replies.add(params.reply)',
         params: {
-          repliy: message,
+          reply: message,
         },
       },
     });
 
-    return updateResult.get._source;
+    const getResult = await this.elasticsearchClient.get<ElasticsearchQuestion>(
+      {
+        index: QUESTIONS_ES_INDEX,
+        id: questionId,
+      },
+    );
+
+    return getResult._source;
   }
 
   async getAllQuestions(): Promise<ElasticsearchQuestion[]> {

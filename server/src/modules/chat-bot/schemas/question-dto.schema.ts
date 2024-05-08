@@ -1,8 +1,8 @@
 import { QuestionDTO } from '../dto/question.dto';
-import { string, object } from 'joi';
+import * as Joi from 'joi';
 
-export const QuestionDtoSchema = object<QuestionDTO>({
-  id: string().uuid(),
-  content: string(),
-  author: string(),
+export const QuestionDtoSchema = Joi.object<QuestionDTO>({
+  id: Joi.string().uuid().required(),
+  content: Joi.string().required(),
+  author: Joi.string().required(),
 });

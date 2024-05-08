@@ -1,19 +1,19 @@
-import { object, number, string } from 'joi';
+import * as Joi from 'joi';
 import { Config, RedisConfig } from './configuration.types';
 
-export const RedisConfigValidationSchema = object<RedisConfig>({
-  port: number().required(),
-  password: string().required(),
-  host: string().required(),
+export const RedisConfigValidationSchema = Joi.object<RedisConfig>({
+  port: Joi.number().required(),
+  password: Joi.string().required(),
+  host: Joi.string().required(),
 });
 
-export const ElasticsearchConfigValidationSchema = object<RedisConfig>({
-  host: string().required(),
-  port: number().required(),
+export const ElasticsearchConfigValidationSchema = Joi.object<RedisConfig>({
+  host: Joi.string().required(),
+  port: Joi.number().required(),
 });
 
-export const ConfigValidationSchema = object<Config>({
-  port: number().required(),
+export const ConfigValidationSchema = Joi.object<Config>({
+  port: Joi.number().required(),
   redis: RedisConfigValidationSchema,
   elasticsearch: ElasticsearchConfigValidationSchema,
 });

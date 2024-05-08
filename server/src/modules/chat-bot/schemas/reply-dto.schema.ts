@@ -1,9 +1,9 @@
 import { ReplyDto } from '../dto/reply.dto';
-import { string, object } from 'joi';
+import * as Joi from 'joi';
 
-export const ReplyDtoSchema = object<ReplyDto>({
-  id: string().uuid().required(),
-  content: string().required(),
-  author: string().required(),
-  questionId: string().required(),
+export const ReplyDtoSchema = Joi.object<ReplyDto>({
+  id: Joi.string().uuid().required(),
+  content: Joi.string().required(),
+  author: Joi.string().required(),
+  questionId: Joi.string().required(),
 });

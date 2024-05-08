@@ -14,7 +14,11 @@ import { JoiValidationPipe } from 'common/pipes/joi-validation.pipe';
 import { QuestionDtoSchema } from './schemas/question-dto.schema';
 import { ReplyDtoSchema } from './schemas/reply-dto.schema';
 
-@WebSocketGateway()
+@WebSocketGateway({
+  cors: {
+    origin: 'http://localhost:3000',
+  },
+})
 export class ChatBotGateway implements OnGatewayConnection {
   constructor(private elasticsearchService: ElasticsearchService) {}
 
@@ -32,9 +36,12 @@ export class ChatBotGateway implements OnGatewayConnection {
     const questionDocument =
       await this.elasticsearchService.createQuestion(message);
 
-    socket.broadcast.emit(MessageType.QUESTION_UPDATE, questionDocument);
+    socket.broadcast.emit(MessageType.QUESTION_ADD, questionDocument);
 
-    return questionDocument;
+    return {
+      event: MessageType.QUESTION_ADD,
+      data: questionDocument,
+    };
   }
 
   @SubscribeMessage(MessageType.REPLY_QUESTION)
@@ -50,6 +57,9 @@ export class ChatBotGateway implements OnGatewayConnection {
 
     socket.broadcast.emit(MessageType.QUESTION_UPDATE, questionDocument);
 
-    return questionDocument;
+    return {
+      event: MessageType.QUESTION_UPDATE,
+      data: questionDocument,
+    };
   }
 }
