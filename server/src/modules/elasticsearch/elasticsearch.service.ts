@@ -25,7 +25,7 @@ export class ElasticsearchService implements OnApplicationBootstrap {
     await this.initialize();
   }
 
-  private async initialize() {
+  private async initialize(): Promise<void> {
     try {
       await this.createIndex();
     } catch (err) {

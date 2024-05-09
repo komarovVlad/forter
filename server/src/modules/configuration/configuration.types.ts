@@ -1,7 +1,8 @@
+import { NodeEnv } from './configuration.constants';
+
 export interface RedisConfig {
   host: string;
   port: number;
-  password: string;
 }
 
 export interface ElasticsearchConfig {
@@ -10,6 +11,7 @@ export interface ElasticsearchConfig {
 }
 
 export interface Config {
+  nodeEnv: NodeEnv;
   port: number;
   redis: RedisConfig;
   elasticsearch: ElasticsearchConfig;

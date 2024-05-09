@@ -65,6 +65,10 @@
       "json",
       "ts"
     ],
+    "resetMocks": true,
+    "clearMocks": true,
+    "restoreMocks": true,
+    "moduleDirectories": ["node_modules", "src"],
     "rootDir": "src",
     "testRegex": ".*\\.spec\\.ts$",
     "transform": {

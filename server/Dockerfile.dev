@@ -1,8 +1,6 @@
 FROM node:lts-iron
 
-COPY . /server
-
-WORKDIR /server
+COPY . .
 
 RUN yarn
 

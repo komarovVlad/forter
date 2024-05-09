@@ -3,7 +3,6 @@ import { Config, RedisConfig } from './configuration.types';
 
 export const RedisConfigValidationSchema = Joi.object<RedisConfig>({
   port: Joi.number().required(),
-  password: Joi.string().required(),
   host: Joi.string().required(),
 });
 
